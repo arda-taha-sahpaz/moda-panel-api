@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap"rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <header class="navbar">
@@ -152,278 +152,204 @@
 </div>
 
 <script>
-  // REVEAL ANIMASYONU
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("show");
-      }
-    });
-  }, {
-    threshold: 0.15
+const API_BASE = "https://moda-panel-api.onrender.com";
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("show");
+    }
   });
+}, { threshold: 0.15 });
 
-  function observeRevealItems() {
-    document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+function observeRevealItems() {
+  document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+}
+
+const modal = document.getElementById("imageModal");
+const modalImg = document.getElementById("modalImage");
+const closeBtn = document.getElementById("closeModal");
+const resetZoom = document.getElementById("resetZoom");
+const zoomLevelText = document.getElementById("zoomLevel");
+const modalWrapper = document.querySelector(".modal-image-wrapper");
+
+let buttons = [];
+
+let scale = 1;
+const minScale = 1;
+const maxScale = 4;
+
+let translateX = 0;
+let translateY = 0;
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+
+let lastTouchDistance = 0;
+
+function updateImageTransform() {
+  modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  zoomLevelText.textContent = Math.round(scale * 100) + "%";
+}
+
+function resetImage() {
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  lastTouchDistance = 0;
+  updateImageTransform();
+}
+
+function getTouchDistance(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function setupInspectButtons() {
+  buttons = document.querySelectorAll(".inspect-btn");
+
+  buttons.forEach((btn) => {
+    btn.onclick = () => {
+      const imgSrc = btn.getAttribute("data-image");
+      modal.style.display = "flex";
+      modalImg.src = imgSrc;
+      resetImage();
+    };
+  });
+}
+
+async function loadDesignPosts() {
+  try {
+    const res = await fetch(API_BASE + "/api/posts");  // 🔥 BURASI DÜZELDİ
+    const data = await res.json();
+
+    const list = document.getElementById("design-list");
+    list.innerHTML = "";
+
+    data.forEach((post) => {
+      list.innerHTML += `
+        <article class="gallery-card reveal">
+          <div class="gallery-image">
+            <img src="${post.imageUrl}" alt="foto">
+            <button class="inspect-btn" data-image="${post.imageUrl}">
+              <span>🔍</span>
+            </button>
+          </div>
+        </article>
+      `;
+    });
+
+    observeRevealItems();
+    setupInspectButtons();
+  } catch (error) {
+    console.error("Fotolar yüklenemedi:", error);
   }
+}
 
-  // MODAL
-  const modal = document.getElementById("imageModal");
-  const modalImg = document.getElementById("modalImage");
-  const closeBtn = document.getElementById("closeModal");
-  const resetZoom = document.getElementById("resetZoom");
-  const zoomLevelText = document.getElementById("zoomLevel");
-  const modalWrapper = document.querySelector(".modal-image-wrapper");
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
 
-  let buttons = [];
-
-  let scale = 1;
-  const minScale = 1;
-  const maxScale = 4;
-
-  let translateX = 0;
-  let translateY = 0;
-
-  let isDragging = false;
-  let startX = 0;
-  let startY = 0;
-
-  let lastTouchDistance = 0;
-  let pinchCenterX = 0;
-  let pinchCenterY = 0;
-
-  function updateImageTransform() {
-    modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-    zoomLevelText.textContent = Math.round(scale * 100) + "%";
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
   }
+});
 
-  function resetImage() {
-    scale = 1;
+resetZoom.addEventListener("click", () => {
+  resetImage();
+});
+
+modalWrapper.addEventListener("wheel", (e) => {
+  e.preventDefault();
+
+  const prevScale = scale;
+
+  if (e.deltaY < 0) scale += 0.15;
+  else scale -= 0.15;
+
+  scale = Math.max(minScale, Math.min(maxScale, scale));
+
+  if (scale === 1) {
     translateX = 0;
     translateY = 0;
-    lastTouchDistance = 0;
+  } else {
+    const ratio = scale / prevScale;
+    translateX *= ratio;
+    translateY *= ratio;
+  }
+
+  updateImageTransform();
+}, { passive: false });
+
+modalWrapper.addEventListener("mousedown", (e) => {
+  if (scale <= 1) return;
+
+  isDragging = true;
+  startX = e.clientX - translateX;
+  startY = e.clientY - translateY;
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+
+  translateX = e.clientX - startX;
+  translateY = e.clientY - startY;
+  updateImageTransform();
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+modalWrapper.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1 && scale > 1) {
+    isDragging = true;
+    startX = e.touches[0].clientX - translateX;
+    startY = e.touches[0].clientY - translateY;
+  }
+
+  if (e.touches.length === 2) {
+    isDragging = false;
+    lastTouchDistance = getTouchDistance(e.touches);
+  }
+}, { passive: true });
+
+modalWrapper.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 1 && isDragging && scale > 1) {
+    translateX = e.touches[0].clientX - startX;
+    translateY = e.touches[0].clientY - startY;
     updateImageTransform();
   }
 
-  function getTouchDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function getTouchCenter(touches) {
-    return {
-      x: (touches[0].clientX + touches[1].clientX) / 2,
-      y: (touches[0].clientY + touches[1].clientY) / 2
-    };
-  }
-
-  function setupInspectButtons() {
-    buttons = document.querySelectorAll(".inspect-btn");
-
-    buttons.forEach((btn) => {
-      btn.onclick = () => {
-        const imgSrc = btn.getAttribute("data-image");
-        modal.style.display = "flex";
-        modalImg.src = imgSrc;
-        resetImage();
-      };
-    });
-  }
-
-  async function loadDesignPosts() {
-    try {
-      const res = await fetch("/api/posts");
-      const data = await res.json();
-
-      const list = document.getElementById("design-list");
-      list.innerHTML = "";
-
-      data.forEach((post) => {
-        list.innerHTML += `
-          <article class="gallery-card reveal">
-            <div class="gallery-image">
-              <img src="${post.imageUrl}" alt="foto">
-              <button class="inspect-btn" data-image="${post.imageUrl}">
-                <span>🔍</span>
-              </button>
-            </div>
-          </article>
-        `;
-      });
-
-      observeRevealItems();
-      setupInspectButtons();
-    } catch (error) {
-      console.error("Fotolar yüklenemedi:", error);
-    }
-  }
-
-  // MODAL KAPAT
-  closeBtn.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  // DIŞA TIKLAYINCA KAPAT
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-
-  // RESET
-  resetZoom.addEventListener("click", () => {
-    resetImage();
-  });
-
-  // PC - WHEEL ZOOM
-  modalWrapper.addEventListener("wheel", (e) => {
+  if (e.touches.length === 2) {
     e.preventDefault();
 
-    const prevScale = scale;
-
-    if (e.deltaY < 0) {
-      scale += 0.15;
-    } else {
-      scale -= 0.15;
+    const newDistance = getTouchDistance(e.touches);
+    if (!lastTouchDistance) {
+      lastTouchDistance = newDistance;
+      return;
     }
 
+    scale *= newDistance / lastTouchDistance;
     scale = Math.max(minScale, Math.min(maxScale, scale));
 
-    if (scale === 1) {
-      translateX = 0;
-      translateY = 0;
-    } else {
-      const ratio = scale / prevScale;
-      translateX *= ratio;
-      translateY *= ratio;
-    }
-
+    lastTouchDistance = newDistance;
     updateImageTransform();
-  }, { passive: false });
+  }
+}, { passive: false });
 
-  // PC - DRAG BAŞLA
-  modalWrapper.addEventListener("mousedown", (e) => {
-    if (scale <= 1) return;
+modalWrapper.addEventListener("touchend", () => {
+  isDragging = false;
+  lastTouchDistance = 0;
+});
 
-    isDragging = true;
-    modalWrapper.classList.add("dragging");
+modalImg.addEventListener("dragstart", (e) => e.preventDefault());
 
-    startX = e.clientX - translateX;
-    startY = e.clientY - translateY;
-  });
-
-  // PC - DRAG HAREKET
-  window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-
-    translateX = e.clientX - startX;
-    translateY = e.clientY - startY;
-
-    updateImageTransform();
-  });
-
-  // PC - DRAG BİTİR
-  window.addEventListener("mouseup", () => {
-    isDragging = false;
-    modalWrapper.classList.remove("dragging");
-  });
-
-  // MOBİL - TOUCH START
-  modalWrapper.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 1 && scale > 1) {
-      isDragging = true;
-      modalWrapper.classList.add("dragging");
-
-      startX = e.touches[0].clientX - translateX;
-      startY = e.touches[0].clientY - translateY;
-    }
-
-    if (e.touches.length === 2) {
-      isDragging = false;
-      lastTouchDistance = getTouchDistance(e.touches);
-
-      const center = getTouchCenter(e.touches);
-      pinchCenterX = center.x;
-      pinchCenterY = center.y;
-    }
-  }, { passive: true });
-
-  // MOBİL - TOUCH MOVE
-  modalWrapper.addEventListener("touchmove", (e) => {
-    if (e.touches.length === 1 && isDragging && scale > 1) {
-      translateX = e.touches[0].clientX - startX;
-      translateY = e.touches[0].clientY - startY;
-      updateImageTransform();
-    }
-
-    if (e.touches.length === 2) {
-      e.preventDefault();
-
-      const newDistance = getTouchDistance(e.touches);
-      if (!lastTouchDistance) {
-        lastTouchDistance = newDistance;
-        return;
-      }
-
-      const prevScale = scale;
-      scale *= newDistance / lastTouchDistance;
-      scale = Math.max(minScale, Math.min(maxScale, scale));
-
-      const center = getTouchCenter(e.touches);
-      const rect = modalWrapper.getBoundingClientRect();
-      const centerX = center.x - rect.left;
-      const centerY = center.y - rect.top;
-
-      const ratio = scale / prevScale;
-
-      translateX = centerX - (centerX - translateX) * ratio;
-      translateY = centerY - (centerY - translateY) * ratio;
-
-      if (scale === 1) {
-        translateX = 0;
-        translateY = 0;
-      }
-
-      lastTouchDistance = newDistance;
-      updateImageTransform();
-    }
-  }, { passive: false });
-
-  // MOBİL - TOUCH END
-  modalWrapper.addEventListener("touchend", (e) => {
-    if (e.touches.length === 0) {
-      isDragging = false;
-      lastTouchDistance = 0;
-      modalWrapper.classList.remove("dragging");
-    }
-
-    if (e.touches.length === 1) {
-      lastTouchDistance = 0;
-
-      if (scale > 1) {
-        isDragging = true;
-        startX = e.touches[0].clientX - translateX;
-        startY = e.touches[0].clientY - translateY;
-        modalWrapper.classList.add("dragging");
-      }
-    }
-  });
-
-  modalWrapper.addEventListener("touchcancel", () => {
-    isDragging = false;
-    lastTouchDistance = 0;
-    modalWrapper.classList.remove("dragging");
-  });
-
-  // RESMİN NORMAL DRAG OLMASINI ENGELLE
-  modalImg.addEventListener("dragstart", (e) => {
-    e.preventDefault();
-  });
-
-  // SAYFA AÇILINCA
-  observeRevealItems();
-  loadDesignPosts();
+observeRevealItems();
+loadDesignPosts();
 </script>
 </body>
 </html>

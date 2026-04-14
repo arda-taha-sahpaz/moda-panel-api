@@ -23,14 +23,17 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-    builder.Services.AddCors(options =>
+builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
             .WithOrigins(
                 "http://localhost:5500",
-                "http://127.0.0.1:5500"
+                "http://127.0.0.1:5500",
+                "https://anatolianessence.com",
+                "https://www.anatolianessence.com",
+                "https://moda-panel-api.onrender.com"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -63,8 +66,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
-    
-    app.UseCors("AllowFrontend");
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -81,6 +84,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();

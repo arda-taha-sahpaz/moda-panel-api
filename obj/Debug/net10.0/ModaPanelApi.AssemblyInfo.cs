@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ModaPanelApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63728feebad44b30a0fd00b6b88e82c5487b8e0f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+77e8003ffed8ed56e52ee6173c0da7655fdc66d4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ModaPanelApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ModaPanelApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
