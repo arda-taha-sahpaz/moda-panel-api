@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anatolian Essence </title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap"rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand">Anatolian Essence</a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#gallery">Designs</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content reveal">
+          <span class="eyebrow">Fashion Designer</span>
+          <h1>Crafting Stories Through Design</h1>
+          <p>
+            Exploring fashion through original concepts, blending creativity, identity, and modern aesthetics.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#gallery" class="btn btn-primary">View My Designs</a>
+            <a href="#about" class="btn btn-secondary">About Me</a>
+          </div>
+        </div>
+        <div class="hero-img reveal">
+          <video autoplay loop muted playsinline >
+             <source src="videos/video1.mp4" type="video/mp4">
+             Your browser doesn't support the video.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="container">
+        <div class="section-title reveal">
+          <span>About</span>
+          <h2>The Essence Behind the Designs</h2>
+          <p>
+            A design vision inspired by Anatolian roots, where tradition meets modern aesthetics and storytelling.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-image reveal">
+            <img src="images/brand.png" alt="foto">
+          </div>
+
+          <div class="about-content reveal">
+            <h3>Anatolian Essence</h3>
+            <p>
+              A spirit born from the roots of Anatolia…
+              But it doesn’t belong to the past.
+              <br>
+              
+              This brand stands right at the intersection of tradition and modernity, simplicity and boldness, innocence and sin.
+              Every piece tells a story. Every detail is a character.
+              <br>
+              <br>
+              Fabric is my language; colors are my emotions.
+              Burgundy speaks of rebellion, gold of nobility, and textures tell the tales of the past.
+              <br>
+            </p>
+            <p>
+              I don’t follow trends.
+              I create my own world.
+              
+              Anatolian Essence;
+              for those who refuse to be ordinary,
+              those who don’t hide themselves,
+              and those who know how to make an impression.
+            </p>
+            <p>
+              This is not just a brand…
+              It’s an attitude.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <div class="container">
+        <div class="section-title reveal">
+          <span>Design</span>
+          <h2>A few selected fashion sketches</h2>
+          <p>
+            A curated collection of fashion sketches blending creativity, detail, and visual storytelling.
+          </p>
+        </div>
+
+        <div class="gallery-grid" id="design-list"></div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="contact-box reveal">
+          <h3>Let’s connect</h3>
+          <p>
+            Open to collaborations, creative projects, and brand partnerships. Let’s create something meaningful together.
+          </p>
+
+          <div class="contact-links">
+            <a class="contact-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=anatolianessence8@gmail.com" target="_blank">
+              Email Me
+            </a>
+            <a class="contact-link" href="https://www.instagram.com/anatolian_essence/">Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 Anatolian Essence. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div class="image-modal" id="imageModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">✕</button>
+
+    <div class="modal-toolbar">
+      <span id="zoomLevel">100%</span>
+      <button id="resetZoom">Reset</button>
+    </div>
+
+    <div class="modal-image-wrapper">
+      <img id="modalImage" src="" alt="">
+    </div>
+  </div>
+</div>
+
+<script>
+  // REVEAL ANIMASYONU
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+      }
+    });
+  }, {
+    threshold: 0.15
+  });
+
+  function observeRevealItems() {
+    document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+  }
+
+  // MODAL
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  const closeBtn = document.getElementById("closeModal");
+  const resetZoom = document.getElementById("resetZoom");
+  const zoomLevelText = document.getElementById("zoomLevel");
+  const modalWrapper = document.querySelector(".modal-image-wrapper");
+
+  let buttons = [];
+
+  let scale = 1;
+  const minScale = 1;
+  const maxScale = 4;
+
+  let translateX = 0;
+  let translateY = 0;
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+
+  let lastTouchDistance = 0;
+  let pinchCenterX = 0;
+  let pinchCenterY = 0;
+
+  function updateImageTransform() {
+    modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    zoomLevelText.textContent = Math.round(scale * 100) + "%";
+  }
+
+  function resetImage() {
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    lastTouchDistance = 0;
+    updateImageTransform();
+  }
+
+  function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function getTouchCenter(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    };
+  }
+
+  function setupInspectButtons() {
+    buttons = document.querySelectorAll(".inspect-btn");
+
+    buttons.forEach((btn) => {
+      btn.onclick = () => {
+        const imgSrc = btn.getAttribute("data-image");
+        modal.style.display = "flex";
+        modalImg.src = imgSrc;
+        resetImage();
+      };
+    });
+  }
+
+  async function loadDesignPosts() {
+    try {
+      const res = await fetch("/api/posts");
+      const data = await res.json();
+
+      const list = document.getElementById("design-list");
+      list.innerHTML = "";
+
+      data.forEach((post) => {
+        list.innerHTML += `
+          <article class="gallery-card reveal">
+            <div class="gallery-image">
+              <img src="${post.imageUrl}" alt="foto">
+              <button class="inspect-btn" data-image="${post.imageUrl}">
+                <span>🔍</span>
+              </button>
+            </div>
+          </article>
+        `;
+      });
+
+      observeRevealItems();
+      setupInspectButtons();
+    } catch (error) {
+      console.error("Fotolar yüklenemedi:", error);
+    }
+  }
+
+  // MODAL KAPAT
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // DIŞA TIKLAYINCA KAPAT
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  // RESET
+  resetZoom.addEventListener("click", () => {
+    resetImage();
+  });
+
+  // PC - WHEEL ZOOM
+  modalWrapper.addEventListener("wheel", (e) => {
+    e.preventDefault();
+
+    const prevScale = scale;
+
+    if (e.deltaY < 0) {
+      scale += 0.15;
+    } else {
+      scale -= 0.15;
+    }
+
+    scale = Math.max(minScale, Math.min(maxScale, scale));
+
+    if (scale === 1) {
+      translateX = 0;
+      translateY = 0;
+    } else {
+      const ratio = scale / prevScale;
+      translateX *= ratio;
+      translateY *= ratio;
+    }
+
+    updateImageTransform();
+  }, { passive: false });
+
+  // PC - DRAG BAŞLA
+  modalWrapper.addEventListener("mousedown", (e) => {
+    if (scale <= 1) return;
+
+    isDragging = true;
+    modalWrapper.classList.add("dragging");
+
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+  });
+
+  // PC - DRAG HAREKET
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    translateX = e.clientX - startX;
+    translateY = e.clientY - startY;
+
+    updateImageTransform();
+  });
+
+  // PC - DRAG BİTİR
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+    modalWrapper.classList.remove("dragging");
+  });
+
+  // MOBİL - TOUCH START
+  modalWrapper.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1 && scale > 1) {
+      isDragging = true;
+      modalWrapper.classList.add("dragging");
+
+      startX = e.touches[0].clientX - translateX;
+      startY = e.touches[0].clientY - translateY;
+    }
+
+    if (e.touches.length === 2) {
+      isDragging = false;
+      lastTouchDistance = getTouchDistance(e.touches);
+
+      const center = getTouchCenter(e.touches);
+      pinchCenterX = center.x;
+      pinchCenterY = center.y;
+    }
+  }, { passive: true });
+
+  // MOBİL - TOUCH MOVE
+  modalWrapper.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 1 && isDragging && scale > 1) {
+      translateX = e.touches[0].clientX - startX;
+      translateY = e.touches[0].clientY - startY;
+      updateImageTransform();
+    }
+
+    if (e.touches.length === 2) {
+      e.preventDefault();
+
+      const newDistance = getTouchDistance(e.touches);
+      if (!lastTouchDistance) {
+        lastTouchDistance = newDistance;
+        return;
+      }
+
+      const prevScale = scale;
+      scale *= newDistance / lastTouchDistance;
+      scale = Math.max(minScale, Math.min(maxScale, scale));
+
+      const center = getTouchCenter(e.touches);
+      const rect = modalWrapper.getBoundingClientRect();
+      const centerX = center.x - rect.left;
+      const centerY = center.y - rect.top;
+
+      const ratio = scale / prevScale;
+
+      translateX = centerX - (centerX - translateX) * ratio;
+      translateY = centerY - (centerY - translateY) * ratio;
+
+      if (scale === 1) {
+        translateX = 0;
+        translateY = 0;
+      }
+
+      lastTouchDistance = newDistance;
+      updateImageTransform();
+    }
+  }, { passive: false });
+
+  // MOBİL - TOUCH END
+  modalWrapper.addEventListener("touchend", (e) => {
+    if (e.touches.length === 0) {
+      isDragging = false;
+      lastTouchDistance = 0;
+      modalWrapper.classList.remove("dragging");
+    }
+
+    if (e.touches.length === 1) {
+      lastTouchDistance = 0;
+
+      if (scale > 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+        modalWrapper.classList.add("dragging");
+      }
+    }
+  });
+
+  modalWrapper.addEventListener("touchcancel", () => {
+    isDragging = false;
+    lastTouchDistance = 0;
+    modalWrapper.classList.remove("dragging");
+  });
+
+  // RESMİN NORMAL DRAG OLMASINI ENGELLE
+  modalImg.addEventListener("dragstart", (e) => {
+    e.preventDefault();
+  });
+
+  // SAYFA AÇILINCA
+  observeRevealItems();
+  loadDesignPosts();
+</script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 50px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .title-wrap p {
+      margin: 0;
+      color: #666;
+      font-size: 15px;
+    }
+
+    .site-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: #111;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .site-link,
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: #111;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      border: none;
+    }
+
+    .upload-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .upload-card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .upload-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="file"] {
+      max-width: 100%;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .add-btn {
+      background: #111;
+      color: #fff;
+    }
+
+    .delete-btn {
+      width: 100%;
+      background: #c62828;
+      color: #fff;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .count-badge {
+      background: #111;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .gallery-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .gallery-image {
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      background: #ececec;
+    }
+
+    .gallery-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body {
+      padding: 14px;
+    }
+
+    .card-meta {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: #666;
+      word-break: break-word;
+    }
+
+    .empty-state {
+      background: #fff;
+      border: 1px dashed #ccc;
+      border-radius: 18px;
+      padding: 30px;
+      text-align: center;
+      color: #666;
+      font-size: 15px;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .status.success {
+      color: #1b7f3b;
+    }
+
+    .status.error {
+      color: #c62828;
+    }
+
+    @media (max-width: 900px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .topbar-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .upload-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .add-btn {
+        width: 100%;
+      }
+
+      .site-link {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>Admin Panel</h1>
+        <p>Design galerisindeki fotoğrafları buradan ekleyip silebilirsin.</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="site-link" href="/index.html" target="_blank">Siteyi Aç</a>
+        <button class="logout-btn" type="button" onclick="logout()">Çıkış Yap</button>
+      </div>
+    </div>
+    <div class="upload-card">
+      <h2>Yeni Foto Ekle</h2>
+
+      <div class="upload-row">
+        <input type="file" id="file" accept="image/*" />
+        <button class="add-btn" type="button" onclick="upload()">Foto Ekle</button>
+      </div>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="section-header">
+      <h2>Mevcut Tasarımlar</h2>
+      <div class="count-badge" id="photoCount">0 foto</div>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+  <script>
+    const list = document.getElementById("list");
+    const statusBox = document.getElementById("status");
+    const photoCount = document.getElementById("photoCount");
+
+    function setStatus(message, type = "") {
+      statusBox.textContent = message;
+      statusBox.className = "status" + (type ? ` ${type}` : "");
+    }
+
+    function updateCount(count) {
+      photoCount.textContent = `${count} foto`;
+    }
+
+    async function upload() {
+      const fileInput = document.getElementById("file");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        setStatus("Önce bir foto seçmelisin.", "error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      setStatus("Foto yükleniyor...");
+
+      try {
+        const response = await fetch("/api/posts/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          setStatus("Foto yükleme başarısız oldu.", "error");
+          return;
+        }
+
+        fileInput.value = "";
+        setStatus("Foto başarıyla eklendi.", "success");
+        await loadPosts();
+      } catch (err) {
+        console.error(err);
+        setStatus("Yükleme sırasında hata oluştu.", "error");
+      }
+    }
+
+    async function deletePost(id) {
+      const confirmed = confirm("Bu fotoğrafı silmek istediğine emin misin?");
+      if (!confirmed) return;
+
+      setStatus("Foto siliniyor...");
+
+      try {
+        const response = await fetch(`/api/posts/${id}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok) {
+          setStatus("Foto silinemedi.", "error");
+          return;
+        }
+
+        setStatus("Foto silindi.", "success");
+        await loadPosts();
+      } catch (err) {
+        console.error(err);
+        setStatus("Silme sırasında hata oluştu.", "error");
+      }
+    }
+
+    async function loadPosts() {
+      try {
+        const res = await fetch("/api/posts");
+        const data = await res.json();
+
+        updateCount(data.length);
+
+        if (!data.length) {
+          list.innerHTML = `
+            <div class="empty-state">
+              Henüz hiç foto eklenmemiş. Yukarıdan ilk fotoğrafı yükleyebilirsin.
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = `<div class="gallery-grid"></div>`;
+        const grid = list.querySelector(".gallery-grid");
+
+        data.forEach((post) => {
+          grid.innerHTML += `
+            <article class="gallery-card">
+              <div class="gallery-image">
+                <img src="${post.imageUrl}" alt="tasarım fotoğrafı">
+              </div>
+
+              <div class="card-body">
+                <p class="card-meta">${post.imageUrl}</p>
+                <button class="delete-btn" type="button" onclick="deletePost(${post.id})">
+                  Sil
+                </button>
+              </div>
+            </article>
+          `;
+        });
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = `
+          <div class="empty-state">
+            Fotoğraflar yüklenirken hata oluştu.
+          </div>
+        `;
+        updateCount(0);
+      }
+    }
+
+    (async function initPanel() {
+      await checkAuth();
+      await loadPosts();
+    })(); 
+
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me");
+
+        if (!res.ok) {
+          window.location.href = "/admin/login.html";
+          return;
+        }
+      } catch (err) {
+        window.location.href = "/admin/login.html";
+      }
+    }
+
+    async function logout() {
+      await fetch("/api/auth/logout", {
+        method: "POST"
+      });
+
+      window.location.href = "/admin/login.html";
+    }
+  </script>
+</body>
+</html>

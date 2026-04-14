@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Giriş</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: 1px solid #ddd;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    p {
+      margin: 0 0 20px;
+      color: #666;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    .success {
+      color: #1b7f3b;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin Giriş</h1>
+    <p>Panele erişmek için giriş yap.</p>
+
+    <div class="field">
+      <input type="text" id="username" placeholder="Kullanıcı adı" />
+    </div>
+
+    <div class="field">
+      <input type="password" id="password" placeholder="Şifre" />
+    </div>
+
+    <button type="button" onclick="login()">Giriş Yap</button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
+
+      status.textContent = "";
+      status.className = "status";
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!res.ok) {
+          status.textContent = "Kullanıcı adı veya şifre yanlış.";
+          status.className = "status error";
+          return;
+        }
+
+        status.textContent = "Giriş başarılı, yönlendiriliyorsun...";
+        status.className = "status success";
+
+        window.location.href = "/admin/panel.html";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Giriş sırasında hata oluştu.";
+        status.className = "status error";
+      }
+    }
+  </script>
+</body>
+</html>
