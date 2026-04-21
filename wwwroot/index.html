@@ -207,6 +207,12 @@ function getTouchDistance(touches) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+function getImageUrl(path) {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  return `${API_BASE}/${path.replace(/^\/+/, "")}`;
+}
+
 function setupInspectButtons() {
   buttons = document.querySelectorAll(".inspect-btn");
 
@@ -222,18 +228,20 @@ function setupInspectButtons() {
 
 async function loadDesignPosts() {
   try {
-    const res = await fetch(API_BASE + "/api/posts");  // 🔥 BURASI DÜZELDİ
+    const res = await fetch(`${API_BASE}/api/posts`);
     const data = await res.json();
 
     const list = document.getElementById("design-list");
     list.innerHTML = "";
 
     data.forEach((post) => {
+      const imageUrl = getImageUrl(post.imageUrl);
+
       list.innerHTML += `
         <article class="gallery-card reveal">
           <div class="gallery-image">
-            <img src="${post.imageUrl}" alt="foto">
-            <button class="inspect-btn" data-image="${post.imageUrl}">
+            <img src="${imageUrl}" alt="foto">
+            <button class="inspect-btn" data-image="${imageUrl}">
               <span>🔍</span>
             </button>
           </div>
@@ -267,8 +275,11 @@ modalWrapper.addEventListener("wheel", (e) => {
 
   const prevScale = scale;
 
-  if (e.deltaY < 0) scale += 0.15;
-  else scale -= 0.15;
+  if (e.deltaY < 0) {
+    scale += 0.15;
+  } else {
+    scale -= 0.15;
+  }
 
   scale = Math.max(minScale, Math.min(maxScale, scale));
 
