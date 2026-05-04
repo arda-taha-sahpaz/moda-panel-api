@@ -2,12 +2,25 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using ModaPanelApi.models;
 using ModaPanelApi.Security;
 using System.Text.Json;
+using CloudinaryDotNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Cloudinary
+var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+
+if (string.IsNullOrWhiteSpace(cloudinaryUrl))
+{
+    throw new Exception("CLOUDINARY_URL environment variable bulunamadı.");
+}
+
+var cloudinary = new Cloudinary(cloudinaryUrl);
+cloudinary.Api.Secure = true;
+builder.Services.AddSingleton(cloudinary);
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
