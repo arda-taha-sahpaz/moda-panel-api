@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using MongoDB.Driver;
 using ModaPanelApi.models;
-using System.Text.Json;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
@@ -11,44 +11,19 @@ namespace ModaPanelApi.Controller
     [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly IMongoCollection<Post> _posts;
         private readonly Cloudinary _cloudinary;
-        private readonly string _jsonPath;
 
-        public PostsController(IWebHostEnvironment env, Cloudinary cloudinary)
+        public PostsController(IMongoCollection<Post> posts, Cloudinary cloudinary)
         {
-            _env = env;
+            _posts = posts;
             _cloudinary = cloudinary;
-            _jsonPath = Path.Combine(_env.ContentRootPath, "posts.json");
-        }
-
-        private List<Post> ReadPosts()
-        {
-            if (!System.IO.File.Exists(_jsonPath))
-                return new List<Post>();
-
-            var json = System.IO.File.ReadAllText(_jsonPath);
-
-            if (string.IsNullOrWhiteSpace(json))
-                return new List<Post>();
-
-            return JsonSerializer.Deserialize<List<Post>>(json) ?? new List<Post>();
-        }
-
-        private void SavePosts(List<Post> posts)
-        {
-            var json = JsonSerializer.Serialize(posts, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            System.IO.File.WriteAllText(_jsonPath, json);
         }
 
         [HttpGet]
-        public IActionResult GetPosts()
+        public async Task<IActionResult> GetPosts()
         {
-            var posts = ReadPosts();
+            var posts = await _posts.Find(_ => true).ToListAsync();
             return Ok(posts);
         }
 
@@ -59,65 +34,37 @@ namespace ModaPanelApi.Controller
             var file = Request.Form.Files.FirstOrDefault();
 
             if (file == null || file.Length == 0)
-                return BadRequest(new { message = "Dosya seçilmedi." });
+                return BadRequest("Dosya yok");
 
-            if (!file.ContentType.StartsWith("image/"))
-                return BadRequest(new { message = "Sadece fotoğraf yüklenebilir." });
+            using var stream = file.OpenReadStream();
 
-            try
+            var uploadParams = new ImageUploadParams
             {
-                using var stream = file.OpenReadStream();
+                File = new FileDescription(file.FileName, stream),
+                Folder = "anatolianessence"
+            };
 
-                var uploadParams = new ImageUploadParams
-                {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = "anatolianessence"
-                };
+            var result = await _cloudinary.UploadAsync(uploadParams);
 
-                var result = await _cloudinary.UploadAsync(uploadParams);
+            if (result.Error != null)
+                return BadRequest(result.Error.Message);
 
-                if (result.Error != null)
-                    return BadRequest(new { message = result.Error.Message });
-
-                var posts = ReadPosts();
-
-                int newId = posts.Count == 0 ? 1 : posts.Max(x => x.Id) + 1;
-
-                var post = new Post
-                {
-                    Id = newId,
-                    ImageUrl = result.SecureUrl.ToString()
-                };
-
-                posts.Add(post);
-                SavePosts(posts);
-
-                return Ok(post);
-            }
-            catch (Exception ex)
+            var post = new Post
             {
-                return StatusCode(500, new
-                {
-                    message = "Foto yüklenirken sunucu hatası oluştu.",
-                    error = ex.Message
-                });
-            }
+                ImageUrl = result.SecureUrl.ToString()
+            };
+
+            await _posts.InsertOneAsync(post);
+
+            return Ok(post);
         }
 
         [Authorize]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var posts = ReadPosts();
-            var post = posts.FirstOrDefault(x => x.Id == id);
-
-            if (post == null)
-                return NotFound(new { message = "Foto bulunamadı." });
-
-            posts.Remove(post);
-            SavePosts(posts);
-
-            return Ok(new { message = "Silindi" });
+            await _posts.DeleteOneAsync(x => x.Id == id);
+            return Ok();
         }
     }
 }

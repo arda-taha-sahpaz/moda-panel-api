@@ -3,6 +3,7 @@ using ModaPanelApi.models;
 using ModaPanelApi.Security;
 using System.Text.Json;
 using CloudinaryDotNet;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Cloudinary
+
+// ================== CLOUDINARY ==================
 var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
 
 if (string.IsNullOrWhiteSpace(cloudinaryUrl))
@@ -22,6 +24,29 @@ var cloudinary = new Cloudinary(cloudinaryUrl);
 cloudinary.Api.Secure = true;
 builder.Services.AddSingleton(cloudinary);
 
+
+// ================== MONGODB ==================
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var connectionString = Environment.GetEnvironmentVariable("MONGO_URL");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new Exception("MONGO_URL environment variable bulunamadı.");
+    }
+
+    return new MongoClient(connectionString);
+});
+
+builder.Services.AddSingleton(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var database = client.GetDatabase("modapanel");
+    return database.GetCollection<Post>("posts");
+});
+
+
+// ================== AUTH ==================
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -36,6 +61,8 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+
+// ================== CORS ==================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -56,10 +83,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+// ================== ADMIN INIT ==================
 string adminPath = Path.Combine(app.Environment.ContentRootPath, "admin.json");
+
 if (!System.IO.File.Exists(adminPath))
 {
     var (hash, salt) = PasswordHelper.HashPassword("ElanurGece33");
+
     var admin = new AdminUser
     {
         Username = "admin",
@@ -75,6 +106,8 @@ if (!System.IO.File.Exists(adminPath))
     System.IO.File.WriteAllText(adminPath, json);
 }
 
+
+// ================== MIDDLEWARE ==================
 app.UseSwagger();
 app.UseSwaggerUI();
 
