@@ -154,11 +154,10 @@
 <script>
 const API_BASE = "https://moda-panel-api.onrender.com";
 
+/* ANIMATION */
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
-    }
+    if (entry.isIntersecting) entry.target.classList.add("show");
   });
 }, { threshold: 0.15 });
 
@@ -166,6 +165,7 @@ function observeRevealItems() {
   document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
 }
 
+/* MODAL */
 const modal = document.getElementById("imageModal");
 const modalImg = document.getElementById("modalImage");
 const closeBtn = document.getElementById("closeModal");
@@ -173,19 +173,12 @@ const resetZoom = document.getElementById("resetZoom");
 const zoomLevelText = document.getElementById("zoomLevel");
 const modalWrapper = document.querySelector(".modal-image-wrapper");
 
-let buttons = [];
-
 let scale = 1;
-const minScale = 1;
-const maxScale = 4;
-
 let translateX = 0;
 let translateY = 0;
-
 let isDragging = false;
 let startX = 0;
 let startY = 0;
-
 let lastTouchDistance = 0;
 
 function updateImageTransform() {
@@ -201,31 +194,29 @@ function resetImage() {
   updateImageTransform();
 }
 
-function getTouchDistance(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
+/* 🔥 EN KRİTİK KISIM (FIX) */
 function getImageUrl(path) {
   if (!path) return "";
+
+  // Cloudinary link ise direkt kullan
   if (path.startsWith("http")) return path;
-  return `${API_BASE}/${path.replace(/^\/+/, "")}`;
+
+  // Eski /uploads ise API ile birleştir
+  return `${API_BASE}${path}`;
 }
 
+/* BUTTON */
 function setupInspectButtons() {
-  buttons = document.querySelectorAll(".inspect-btn");
-
-  buttons.forEach((btn) => {
+  document.querySelectorAll(".inspect-btn").forEach((btn) => {
     btn.onclick = () => {
-      const imgSrc = btn.getAttribute("data-image");
       modal.style.display = "flex";
-      modalImg.src = imgSrc;
+      modalImg.src = btn.dataset.image;
       resetImage();
     };
   });
 }
 
+/* LOAD DATA */
 async function loadDesignPosts() {
   try {
     const res = await fetch(`${API_BASE}/api/posts`);
@@ -234,15 +225,20 @@ async function loadDesignPosts() {
     const list = document.getElementById("design-list");
     list.innerHTML = "";
 
+    if (!data.length) {
+      list.innerHTML = `<p style="text-align:center;">Henüz foto yok</p>`;
+      return;
+    }
+
     data.forEach((post) => {
       const imageUrl = getImageUrl(post.imageUrl);
 
       list.innerHTML += `
         <article class="gallery-card reveal">
           <div class="gallery-image">
-            <img src="${imageUrl}" alt="foto">
+            <img src="${imageUrl}" alt="foto" loading="lazy">
             <button class="inspect-btn" data-image="${imageUrl}">
-              <span>🔍</span>
+              🔍
             </button>
           </div>
         </article>
@@ -251,114 +247,55 @@ async function loadDesignPosts() {
 
     observeRevealItems();
     setupInspectButtons();
-  } catch (error) {
-    console.error("Fotolar yüklenemedi:", error);
+
+  } catch (err) {
+    console.error("Foto yükleme hatası:", err);
   }
 }
 
-closeBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-});
+/* MODAL EVENTS */
+closeBtn.onclick = () => modal.style.display = "none";
+modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+resetZoom.onclick = resetImage;
 
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-  }
-});
-
-resetZoom.addEventListener("click", () => {
-  resetImage();
-});
-
+/* ZOOM */
 modalWrapper.addEventListener("wheel", (e) => {
   e.preventDefault();
 
   const prevScale = scale;
+  scale += e.deltaY < 0 ? 0.15 : -0.15;
+  scale = Math.max(1, Math.min(4, scale));
 
-  if (e.deltaY < 0) {
-    scale += 0.15;
-  } else {
-    scale -= 0.15;
-  }
-
-  scale = Math.max(minScale, Math.min(maxScale, scale));
+  const ratio = scale / prevScale;
+  translateX *= ratio;
+  translateY *= ratio;
 
   if (scale === 1) {
     translateX = 0;
     translateY = 0;
-  } else {
-    const ratio = scale / prevScale;
-    translateX *= ratio;
-    translateY *= ratio;
   }
 
   updateImageTransform();
 }, { passive: false });
 
-modalWrapper.addEventListener("mousedown", (e) => {
+/* DRAG */
+modalWrapper.onmousedown = (e) => {
   if (scale <= 1) return;
-
   isDragging = true;
   startX = e.clientX - translateX;
   startY = e.clientY - translateY;
-});
+};
 
-window.addEventListener("mousemove", (e) => {
+window.onmousemove = (e) => {
   if (!isDragging) return;
-
   translateX = e.clientX - startX;
   translateY = e.clientY - startY;
   updateImageTransform();
-});
+};
 
-window.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+window.onmouseup = () => isDragging = false;
 
-modalWrapper.addEventListener("touchstart", (e) => {
-  if (e.touches.length === 1 && scale > 1) {
-    isDragging = true;
-    startX = e.touches[0].clientX - translateX;
-    startY = e.touches[0].clientY - translateY;
-  }
-
-  if (e.touches.length === 2) {
-    isDragging = false;
-    lastTouchDistance = getTouchDistance(e.touches);
-  }
-}, { passive: true });
-
-modalWrapper.addEventListener("touchmove", (e) => {
-  if (e.touches.length === 1 && isDragging && scale > 1) {
-    translateX = e.touches[0].clientX - startX;
-    translateY = e.touches[0].clientY - startY;
-    updateImageTransform();
-  }
-
-  if (e.touches.length === 2) {
-    e.preventDefault();
-
-    const newDistance = getTouchDistance(e.touches);
-    if (!lastTouchDistance) {
-      lastTouchDistance = newDistance;
-      return;
-    }
-
-    scale *= newDistance / lastTouchDistance;
-    scale = Math.max(minScale, Math.min(maxScale, scale));
-
-    lastTouchDistance = newDistance;
-    updateImageTransform();
-  }
-}, { passive: false });
-
-modalWrapper.addEventListener("touchend", () => {
-  isDragging = false;
-  lastTouchDistance = 0;
-});
-
-modalImg.addEventListener("dragstart", (e) => e.preventDefault());
-
+/* START */
 observeRevealItems();
 loadDesignPosts();
 </script>
