@@ -281,148 +281,172 @@
   </div>
 
   <script>
-    const list = document.getElementById("list");
-    const statusBox = document.getElementById("status");
-    const photoCount = document.getElementById("photoCount");
+  const API_BASE = "https://moda-panel-api.onrender.com";
 
-    function setStatus(message, type = "") {
-      statusBox.textContent = message;
-      statusBox.className = "status" + (type ? ` ${type}` : "");
+  const list = document.getElementById("list");
+  const statusBox = document.getElementById("status");
+  const photoCount = document.getElementById("photoCount");
+
+  function setStatus(message, type = "") {
+    statusBox.textContent = message;
+    statusBox.className = "status" + (type ? ` ${type}` : "");
+  }
+
+  function updateCount(count) {
+    photoCount.textContent = `${count} foto`;
+  }
+
+  function getImageSrc(imageUrl) {
+    if (!imageUrl) return "";
+    if (imageUrl.startsWith("http")) return imageUrl;
+    return `${API_BASE}${imageUrl}`;
+  }
+
+  async function upload() {
+    const fileInput = document.getElementById("file");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      setStatus("Önce bir foto seçmelisin.", "error");
+      return;
     }
 
-    function updateCount(count) {
-      photoCount.textContent = `${count} foto`;
-    }
+    const formData = new FormData();
+    formData.append("file", file);
 
-    async function upload() {
-      const fileInput = document.getElementById("file");
-      const file = fileInput.files[0];
+    setStatus("Foto yükleniyor...");
 
-      if (!file) {
-        setStatus("Önce bir foto seçmelisin.", "error");
+    try {
+      const response = await fetch(`${API_BASE}/api/posts/upload`, {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload error:", errorText);
+        setStatus("Foto yükleme başarısız oldu.", "error");
         return;
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-
-      setStatus("Foto yükleniyor...");
-
-      try {
-        const response = await fetch("/api/posts/upload", {
-          method: "POST",
-          body: formData
-        });
-
-        if (!response.ok) {
-          setStatus("Foto yükleme başarısız oldu.", "error");
-          return;
-        }
-
-        fileInput.value = "";
-        setStatus("Foto başarıyla eklendi.", "success");
-        await loadPosts();
-      } catch (err) {
-        console.error(err);
-        setStatus("Yükleme sırasında hata oluştu.", "error");
-      }
-    }
-
-    async function deletePost(id) {
-      const confirmed = confirm("Bu fotoğrafı silmek istediğine emin misin?");
-      if (!confirmed) return;
-
-      setStatus("Foto siliniyor...");
-
-      try {
-        const response = await fetch(`/api/posts/${id}`, {
-          method: "DELETE"
-        });
-
-        if (!response.ok) {
-          setStatus("Foto silinemedi.", "error");
-          return;
-        }
-
-        setStatus("Foto silindi.", "success");
-        await loadPosts();
-      } catch (err) {
-        console.error(err);
-        setStatus("Silme sırasında hata oluştu.", "error");
-      }
-    }
-
-    async function loadPosts() {
-      try {
-        const res = await fetch("/api/posts");
-        const data = await res.json();
-
-        updateCount(data.length);
-
-        if (!data.length) {
-          list.innerHTML = `
-            <div class="empty-state">
-              Henüz hiç foto eklenmemiş. Yukarıdan ilk fotoğrafı yükleyebilirsin.
-            </div>
-          `;
-          return;
-        }
-
-        list.innerHTML = `<div class="gallery-grid"></div>`;
-        const grid = list.querySelector(".gallery-grid");
-
-        data.forEach((post) => {
-          grid.innerHTML += `
-            <article class="gallery-card">
-              <div class="gallery-image">
-                <img src="https://moda-panel-api.onrender.com${post.imageUrl}" alt="tasarım fotoğrafı">
-              </div>
-
-              <div class="card-body">
-                <p class="card-meta">${post.imageUrl}</p>
-                <button class="delete-btn" type="button" onclick="deletePost(${post.id})">
-                  Sil
-                </button>
-              </div>
-            </article>
-          `;
-        });
-      } catch (err) {
-        console.error(err);
-        list.innerHTML = `
-          <div class="empty-state">
-            Fotoğraflar yüklenirken hata oluştu.
-          </div>
-        `;
-        updateCount(0);
-      }
-    }
-
-    (async function initPanel() {
-      await checkAuth();
+      fileInput.value = "";
+      setStatus("Foto başarıyla eklendi.", "success");
       await loadPosts();
-    })(); 
-
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me");
-
-        if (!res.ok) {
-          window.location.href = "/admin/login.html";
-          return;
-        }
-      } catch (err) {
-        window.location.href = "/admin/login.html";
-      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Yükleme sırasında hata oluştu.", "error");
     }
+  }
 
-    async function logout() {
-      await fetch("/api/auth/logout", {
-        method: "POST"
+  async function deletePost(id) {
+    const confirmed = confirm("Bu fotoğrafı silmek istediğine emin misin?");
+    if (!confirmed) return;
+
+    setStatus("Foto siliniyor...");
+
+    try {
+      const response = await fetch(`${API_BASE}/api/posts/${id}`, {
+        method: "DELETE",
+        credentials: "include"
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Delete error:", errorText);
+        setStatus("Foto silinemedi.", "error");
+        return;
+      }
+
+      setStatus("Foto silindi.", "success");
+      await loadPosts();
+    } catch (err) {
+      console.error(err);
+      setStatus("Silme sırasında hata oluştu.", "error");
+    }
+  }
+
+  async function loadPosts() {
+    try {
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        credentials: "include"
+      });
+
+      if (!res.ok) {
+        throw new Error("Fotoğraflar alınamadı.");
+      }
+
+      const data = await res.json();
+      updateCount(data.length);
+
+      if (!data.length) {
+        list.innerHTML = `
+          <div class="empty-state">
+            Henüz hiç foto eklenmemiş. Yukarıdan ilk fotoğrafı yükleyebilirsin.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = `<div class="gallery-grid"></div>`;
+      const grid = list.querySelector(".gallery-grid");
+
+      data.forEach((post) => {
+        const imageSrc = getImageSrc(post.imageUrl);
+
+        grid.innerHTML += `
+          <article class="gallery-card">
+            <div class="gallery-image">
+              <img src="${imageSrc}" alt="tasarım fotoğrafı">
+            </div>
+
+            <div class="card-body">
+              <p class="card-meta">${post.imageUrl}</p>
+              <button class="delete-btn" type="button" onclick="deletePost(${post.id})">
+                Sil
+              </button>
+            </div>
+          </article>
+        `;
+      });
+    } catch (err) {
+      console.error(err);
+      list.innerHTML = `
+        <div class="empty-state">
+          Fotoğraflar yüklenirken hata oluştu.
+        </div>
+      `;
+      updateCount(0);
+    }
+  }
+
+  async function checkAuth() {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        credentials: "include"
+      });
+
+      if (!res.ok) {
+        window.location.href = "/admin/login.html";
+      }
+    } catch (err) {
       window.location.href = "/admin/login.html";
     }
-  </script>
+  }
+
+  async function logout() {
+    await fetch(`${API_BASE}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+
+    window.location.href = "/admin/login.html";
+  }
+
+  (async function initPanel() {
+    await checkAuth();
+    await loadPosts();
+  })();
+</script>
 </body>
 </html>
