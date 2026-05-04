@@ -54,38 +54,54 @@ namespace ModaPanelApi.Controller
 
         [Authorize]
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload()
         {
+            var file = Request.Form.Files.FirstOrDefault();
+
             if (file == null || file.Length == 0)
-                return BadRequest("Dosya seçilmedi.");
+                return BadRequest(new { message = "Dosya seçilmedi." });
 
-            using var stream = file.OpenReadStream();
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest(new { message = "Sadece fotoğraf yüklenebilir." });
 
-            var uploadParams = new ImageUploadParams
+            try
             {
-                File = new FileDescription(file.FileName, stream),
-                Folder = "anatolianessence"
-            };
+                using var stream = file.OpenReadStream();
 
-            var result = await _cloudinary.UploadAsync(uploadParams);
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "anatolianessence"
+                };
 
-            if (result.Error != null)
-                return BadRequest(new { message = result.Error.Message });
+                var result = await _cloudinary.UploadAsync(uploadParams);
 
-            var posts = ReadPosts();
+                if (result.Error != null)
+                    return BadRequest(new { message = result.Error.Message });
 
-            int newId = posts.Count == 0 ? 1 : posts.Max(x => x.Id) + 1;
+                var posts = ReadPosts();
 
-            var post = new Post
+                int newId = posts.Count == 0 ? 1 : posts.Max(x => x.Id) + 1;
+
+                var post = new Post
+                {
+                    Id = newId,
+                    ImageUrl = result.SecureUrl.ToString()
+                };
+
+                posts.Add(post);
+                SavePosts(posts);
+
+                return Ok(post);
+            }
+            catch (Exception ex)
             {
-                Id = newId,
-                ImageUrl = result.SecureUrl.ToString()
-            };
-
-            posts.Add(post);
-            SavePosts(posts);
-
-            return Ok(post);
+                return StatusCode(500, new
+                {
+                    message = "Foto yüklenirken sunucu hatası oluştu.",
+                    error = ex.Message
+                });
+            }
         }
 
         [Authorize]
@@ -96,7 +112,7 @@ namespace ModaPanelApi.Controller
             var post = posts.FirstOrDefault(x => x.Id == id);
 
             if (post == null)
-                return NotFound("Foto bulunamadı.");
+                return NotFound(new { message = "Foto bulunamadı." });
 
             posts.Remove(post);
             SavePosts(posts);
