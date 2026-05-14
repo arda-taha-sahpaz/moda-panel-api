@@ -36,12 +36,29 @@ namespace ModaPanelApi.Controller
             if (file == null || file.Length == 0)
                 return BadRequest("Dosya yok");
 
+            var allowedTypes = new[]
+            {
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+                "image/webp",
+                "image/heic"
+            };
+
+            if (!allowedTypes.Contains(file.ContentType.ToLower()))
+            {
+                return BadRequest("Desteklenmeyen dosya türü.");
+            }
+
             using var stream = file.OpenReadStream();
 
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
-                Folder = "anatolianessence"
+                Folder = "anatolianessence",
+                UseFilename = true,
+                UniqueFilename = false,
+                Overwrite = false
             };
 
             var result = await _cloudinary.UploadAsync(uploadParams);
