@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using ModaPanelApi.models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ModaPanelApi.Controller
 {
@@ -11,14 +12,24 @@ namespace ModaPanelApi.Controller
     public class AuthController : ControllerBase
     {
         [HttpPost("login")]
+        [EnableRateLimiting("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (request.Username != "admin" || request.Password != "ElanurGece33")
+            var expectedUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+            var expectedPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+            if (string.IsNullOrWhiteSpace(expectedUsername) ||
+                string.IsNullOrWhiteSpace(expectedPassword))
+            {
+                return StatusCode(503, new { message = "Yönetici girişi yapılandırılmamış." });
+            }
+
+            if (request.Username != expectedUsername || request.Password != expectedPassword)
                 return Unauthorized(new { message = "Kullanıcı adı veya şifre yanlış." });
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, "admin"),
+                new Claim(ClaimTypes.Name, expectedUsername),
                 new Claim(ClaimTypes.Role, "Admin")
             };
 

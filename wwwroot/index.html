@@ -1,323 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anatolian Essence </title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap"rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css?v=2">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contemporary fashion stories rooted in the visual heritage of Anatolia.">
+  <meta name="theme-color" content="#171411">
+  <title>Anatolian Essence — Independent Fashion Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
-  <header class="navbar">
-    <div class="container nav-inner">
-      <a href="#" class="brand">Anatolian Essence</a>
-
-      <nav>
-        <ul class="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#gallery">Designs</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
+  <header class="site-header">
+    <a class="wordmark" href="#top">Anatolian <i>Essence</i></a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+    <nav aria-label="Primary navigation">
+      <a href="#about">About</a>
+      <a href="#collections">Collections</a>
+      <a href="#contact">Contact</a>
+    </nav>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-content reveal">
-          <span class="eyebrow">Fashion Designer</span>
-          <h1>Crafting Stories Through Design</h1>
-          <p>
-            Exploring fashion through original concepts, blending creativity, identity, and modern aesthetics.
-          </p>
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="kicker">Independent fashion studio · İstanbul</p>
+        <h1>Rooted in <span>Anatolia.</span> Made for now.</h1>
+        <p class="hero-intro">
+          A contemporary fashion language shaped by memory, rebellion and the
+          rich visual heritage of Anatolia.
+        </p>
+        <a class="circle-link" href="#collections">
+          <span>Explore</span><b aria-hidden="true">↗</b>
+        </a>
+      </div>
 
-          <div class="hero-actions">
-            <a href="#gallery" class="btn btn-primary">View My Designs</a>
-            <a href="#about" class="btn btn-secondary">About Me</a>
-          </div>
-        </div>
-        <div class="hero-img reveal">
-          <video autoplay loop muted playsinline >
-             <source src="videos/video1.mp4" type="video/mp4">
-             Your browser doesn't support the video.
+      <div class="hero-media">
+        <div class="video-frame">
+          <video autoplay loop muted playsinline preload="metadata">
+            <source src="videos/video1.mp4" type="video/mp4">
           </video>
         </div>
+        <p class="vertical-note">Anatolian Essence — Film 001</p>
+        <span class="edition">AE / 26</span>
+      </div>
+
+      <div class="hero-index" aria-hidden="true">
+        <span>Art direction</span>
+        <span>Fashion design</span>
+        <span>Visual stories</span>
       </div>
     </section>
 
-    <section id="about">
-      <div class="container">
-        <div class="section-title reveal">
-          <span>About</span>
-          <h2>The Essence Behind the Designs</h2>
+    <section class="manifesto">
+      <p class="section-number">01 / Manifesto</p>
+      <p class="manifesto-copy">
+        We don’t follow trends. We build a world where fabric becomes language,
+        colour carries emotion and every silhouette holds a memory.
+      </p>
+    </section>
+
+    <section class="about" id="about">
+      <div class="about-image">
+        <img src="images/brand.jpeg" alt="Anatolian Essence creative portrait">
+        <span class="image-caption">The story behind the studio</span>
+      </div>
+
+      <div class="about-copy">
+        <p class="section-number">02 / About</p>
+        <h2>Tradition, without nostalgia.</h2>
+        <div class="about-columns">
           <p>
-            A design vision inspired by Anatolian roots, where tradition meets modern aesthetics and storytelling.
+            Anatolian Essence is born from the roots of Anatolia, but it does
+            not belong to the past. It stands where tradition meets modernity,
+            simplicity meets boldness, innocence meets rebellion.
+          </p>
+          <p>
+            Every piece is a character. Burgundy speaks of defiance, gold of
+            nobility, and texture carries stories forward. This is not simply
+            a brand. It is an attitude.
           </p>
         </div>
-
-        <div class="about-grid">
-          <div class="about-image reveal">
-            <img src="images/brand.jpeg" alt="foto">
-          </div>
-
-          <div class="about-content reveal">
-            <h3>Anatolian Essence</h3>
-            <p>
-              A spirit born from the roots of Anatolia…
-              But it doesn’t belong to the past.
-              <br>
-              
-              This brand stands right at the intersection of tradition and modernity, simplicity and boldness, innocence and sin.
-              Every piece tells a story. Every detail is a character.
-              <br>
-              <br>
-              Fabric is my language; colors are my emotions.
-              Burgundy speaks of rebellion, gold of nobility, and textures tell the tales of the past.
-              <br>
-            </p>
-            <p>
-              I don’t follow trends.
-              I create my own world.
-              
-              Anatolian Essence;
-              for those who refuse to be ordinary,
-              those who don’t hide themselves,
-              and those who know how to make an impression.
-            </p>
-            <p>
-              This is not just a brand…
-              It’s an attitude.
-            </p>
-          </div>
+        <div class="studio-facts">
+          <div><strong id="collectionCount">—</strong><span>Collections</span></div>
+          <div><strong id="designCount">—</strong><span>Designs</span></div>
+          <div><strong>TR</strong><span>Origin</span></div>
         </div>
       </div>
     </section>
 
-    <section id="gallery">
-      <div class="container">
-        <div class="section-title reveal">
-          <span>Design</span>
-          <h2>Selected Collections</h2>
-          <p>
-            Explore each collection and the story behind its designs.
-          </p>
-        </div>
+    <section class="collections" id="collections">
+      <div class="collections-title">
+        <p class="section-number">03 / Selected work</p>
+        <h2>Collections</h2>
+        <p>Concept, craft and identity—explored one story at a time.</p>
+      </div>
 
-        <div class="collections-list" id="design-list"></div>
+      <div id="collectionList">
+        <div class="collection-loading">
+          <span></span>
+          <p>Loading the archive</p>
+        </div>
       </div>
     </section>
 
-    <section id="contact">
-      <div class="container">
-        <div class="contact-box reveal">
-          <h3>Let’s connect</h3>
-          <p>
-            Open to collaborations, creative projects, and brand partnerships. Let’s create something meaningful together.
-          </p>
-
-          <div class="contact-links">
-            <a class="contact-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=anatolianessence8@gmail.com" target="_blank">
-              Email Me
-            </a>
-            <a class="contact-link" href="https://www.instagram.com/anatolian_essence/">Instagram</a>
-          </div>
-        </div>
+    <section class="contact" id="contact">
+      <p class="section-number">04 / Contact</p>
+      <p class="contact-overline">For collaborations, commissions and creative projects</p>
+      <a class="contact-mail" href="mailto:anatolianessence8@gmail.com">
+        Let’s create <span aria-hidden="true">↗</span>
+      </a>
+      <div class="contact-footer">
+        <p>İstanbul, Türkiye</p>
+        <a href="https://www.instagram.com/anatolian_essence/" target="_blank" rel="noopener">
+          Instagram ↗
+        </a>
+        <p>© 2026 Anatolian Essence</p>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="container">
-      <p>© 2026 Anatolian Essence. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <div class="image-modal" id="imageModal">
-  <div class="modal-content">
-    <button class="close-btn" id="closeModal">✕</button>
-
-    <div class="modal-toolbar">
-      <span id="zoomLevel">100%</span>
-      <button id="resetZoom">Reset</button>
-    </div>
-
-    <div class="modal-image-wrapper">
-      <img id="modalImage" src="" alt="">
-    </div>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Design image" hidden>
+    <button type="button" id="closeLightbox">Close ×</button>
+    <img id="lightboxImage" src="" alt="Selected Anatolian Essence design">
   </div>
-</div>
 
-<script>
-const API_BASE = "https://moda-panel-api.onrender.com";
+  <script>
+    const API_BASE = "https://moda-panel-api.onrender.com";
+    const menuButton = document.querySelector(".menu-toggle");
+    const navigation = document.querySelector(".site-header nav");
+    const collectionList = document.getElementById("collectionList");
+    const collectionCount = document.getElementById("collectionCount");
+    const designCount = document.getElementById("designCount");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const closeLightbox = document.getElementById("closeLightbox");
 
-/* ANIMATION */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) entry.target.classList.add("show");
-  });
-}, { threshold: 0.15 });
-
-function observeRevealItems() {
-  document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
-}
-
-/* MODAL */
-const modal = document.getElementById("imageModal");
-const modalImg = document.getElementById("modalImage");
-const closeBtn = document.getElementById("closeModal");
-const resetZoom = document.getElementById("resetZoom");
-const zoomLevelText = document.getElementById("zoomLevel");
-const modalWrapper = document.querySelector(".modal-image-wrapper");
-
-let scale = 1;
-let translateX = 0;
-let translateY = 0;
-let isDragging = false;
-let startX = 0;
-let startY = 0;
-let lastTouchDistance = 0;
-
-function updateImageTransform() {
-  modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-  zoomLevelText.textContent = Math.round(scale * 100) + "%";
-}
-
-function resetImage() {
-  scale = 1;
-  translateX = 0;
-  translateY = 0;
-  lastTouchDistance = 0;
-  updateImageTransform();
-}
-
-/* 🔥 EN KRİTİK KISIM (FIX) */
-function getImageUrl(path) {
-  if (!path) return "";
-
-  // Cloudinary link ise direkt kullan
-  if (path.startsWith("http")) return path;
-
-  // Eski /uploads ise API ile birleştir
-  return `${API_BASE}${path}`;
-}
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-/* BUTTON */
-function setupInspectButtons() {
-  document.querySelectorAll(".inspect-btn").forEach((btn) => {
-    btn.onclick = () => {
-      modal.style.display = "flex";
-      modalImg.src = btn.dataset.image;
-      resetImage();
-    };
-  });
-}
-
-/* LOAD DATA */
-async function loadDesignPosts() {
-  try {
-    const res = await fetch(`${API_BASE}/api/collections`);
-    if (!res.ok) throw new Error("Collections could not be loaded.");
-    const data = await res.json();
-
-    const list = document.getElementById("design-list");
-    list.innerHTML = "";
-
-    if (!data.length) {
-      list.innerHTML = `<p class="gallery-empty">No collection has been added yet.</p>`;
-      return;
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
-    data.forEach((collection) => {
-      const images = Array.isArray(collection.images) ? collection.images : [];
-      const cards = images.map((image) => {
-        const imageUrl = getImageUrl(image.imageUrl);
+    function toggleMenu(forceClose = false) {
+      const open = forceClose ? false : !navigation.classList.contains("nav-open");
+      navigation.classList.toggle("nav-open", open);
+      menuButton.setAttribute("aria-expanded", String(open));
+    }
+
+    function openImage(url) {
+      lightboxImage.src = url;
+      lightbox.hidden = false;
+      document.body.classList.add("modal-open");
+      closeLightbox.focus();
+    }
+
+    function closeImage() {
+      lightbox.hidden = true;
+      lightboxImage.src = "";
+      document.body.classList.remove("modal-open");
+    }
+
+    function renderCollections(collections) {
+      const totalDesigns = collections.reduce(
+        (total, collection) => total + (Array.isArray(collection.images) ? collection.images.length : 0),
+        0
+      );
+      collectionCount.textContent = collections.length || "—";
+      designCount.textContent = totalDesigns || "—";
+
+      if (!collections.length) {
+        collectionList.innerHTML = '<p class="empty-collection">The first collection is coming soon.</p>';
+        return;
+      }
+
+      collectionList.className = "collection-list";
+      collectionList.innerHTML = collections.map((collection, collectionIndex) => {
+        const images = Array.isArray(collection.images) ? collection.images : [];
+        const imageMarkup = images.length
+          ? `<div class="collection-grid grid-${Math.min(images.length, 5)}">
+              ${images.map((image, imageIndex) => `
+                <button class="look" type="button" data-image="${escapeHtml(image.imageUrl)}"
+                  aria-label="Open ${escapeHtml(collection.title)} design ${imageIndex + 1}">
+                  <img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(collection.title)}, look ${imageIndex + 1}" loading="lazy">
+                  <span>View look <b aria-hidden="true">↗</b></span>
+                </button>`).join("")}
+            </div>`
+          : '<p class="empty-collection">New work is coming soon.</p>';
+
         return `
-          <article class="gallery-card reveal">
-            <div class="gallery-image">
-              <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(collection.title)}" loading="lazy">
-              <button class="inspect-btn" type="button" data-image="${escapeHtml(imageUrl)}" aria-label="View image">
-                🔍
-              </button>
-            </div>
+          <article class="collection">
+            <header class="collection-header">
+              <span>${String(collectionIndex + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>${escapeHtml(collection.title)}</h3>
+                ${collection.description ? `<p>${escapeHtml(collection.description)}</p>` : ""}
+              </div>
+              <span>${images.length} looks</span>
+            </header>
+            ${imageMarkup}
           </article>`;
       }).join("");
 
-      list.innerHTML += `
-        <section class="collection-block reveal">
-          <div class="collection-heading">
-            <h3>${escapeHtml(collection.title)}</h3>
-            ${collection.description ? `<p>${escapeHtml(collection.description)}</p>` : ""}
-          </div>
-          ${cards ? `<div class="gallery-grid">${cards}</div>` : `<p class="gallery-empty">Photos will be added soon.</p>`}
-        </section>`;
+      document.querySelectorAll(".look").forEach((button) => {
+        button.addEventListener("click", () => openImage(button.dataset.image));
+      });
+    }
+
+    async function loadCollections() {
+      try {
+        const response = await fetch(`${API_BASE}/api/collections`);
+        if (!response.ok) throw new Error("Collections could not be loaded.");
+        const data = await response.json();
+        renderCollections(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error(error);
+        collectionList.innerHTML = '<p class="empty-collection">The archive is temporarily unavailable.</p>';
+      }
+    }
+
+    menuButton.addEventListener("click", () => toggleMenu());
+    navigation.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => toggleMenu(true));
+    });
+    closeLightbox.addEventListener("click", closeImage);
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeImage();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !lightbox.hidden) closeImage();
     });
 
-    observeRevealItems();
-    setupInspectButtons();
-
-  } catch (err) {
-    console.error("Foto yükleme hatası:", err);
-  }
-}
-
-/* MODAL EVENTS */
-closeBtn.onclick = () => modal.style.display = "none";
-modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-resetZoom.onclick = resetImage;
-
-/* ZOOM */
-modalWrapper.addEventListener("wheel", (e) => {
-  e.preventDefault();
-
-  const prevScale = scale;
-  scale += e.deltaY < 0 ? 0.15 : -0.15;
-  scale = Math.max(1, Math.min(4, scale));
-
-  const ratio = scale / prevScale;
-  translateX *= ratio;
-  translateY *= ratio;
-
-  if (scale === 1) {
-    translateX = 0;
-    translateY = 0;
-  }
-
-  updateImageTransform();
-}, { passive: false });
-
-/* DRAG */
-modalWrapper.onmousedown = (e) => {
-  if (scale <= 1) return;
-  isDragging = true;
-  startX = e.clientX - translateX;
-  startY = e.clientY - translateY;
-};
-
-window.onmousemove = (e) => {
-  if (!isDragging) return;
-  translateX = e.clientX - startX;
-  translateY = e.clientY - startY;
-  updateImageTransform();
-};
-
-window.onmouseup = () => isDragging = false;
-
-/* START */
-observeRevealItems();
-loadDesignPosts();
-</script>
+    loadCollections();
+  </script>
 </body>
 </html>

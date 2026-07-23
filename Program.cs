@@ -1,15 +1,23 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ModaPanelApi.models;
-using ModaPanelApi.Security;
-using System.Text.Json;
 using CloudinaryDotNet;
 using MongoDB.Driver;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+if (string.IsNullOrWhiteSpace(adminUsername) || string.IsNullOrWhiteSpace(adminPassword))
+{
+    throw new Exception("ADMIN_USERNAME ve ADMIN_PASSWORD environment variable değerleri zorunludur.");
+}
 
 
 // ================== CLOUDINARY ==================
@@ -59,15 +67,28 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/admin/login.html";
+        options.Cookie.Name = "__Host-AnatolianEssenceAdmin";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.IsEssential = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
     });
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("login", limiter =>
+    {
+        limiter.PermitLimit = 5;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 0;
+        limiter.AutoReplenishment = true;
+    });
+});
 
 // ================== CORS ==================
 builder.Services.AddCors(options =>
@@ -83,47 +104,41 @@ builder.Services.AddCors(options =>
                 "https://moda-panel-api.onrender.com"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-
-// ================== ADMIN INIT ==================
-string adminPath = Path.Combine(app.Environment.ContentRootPath, "admin.json");
-
-if (!System.IO.File.Exists(adminPath))
-{
-    var (hash, salt) = PasswordHelper.HashPassword("ElanurGece33");
-
-    var admin = new AdminUser
-    {
-        Username = "admin",
-        PasswordHash = hash,
-        Salt = salt
-    };
-
-    var json = JsonSerializer.Serialize(admin, new JsonSerializerOptions
-    {
-        WriteIndented = true
-    });
-
-    System.IO.File.WriteAllText(adminPath, json);
-}
-
-
 // ================== MIDDLEWARE ==================
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
 
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; img-src 'self' https://res.cloudinary.com data:; " +
+        "media-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+        "font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; " +
+        "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
+
+    await next();
+});
 
 app.Use(async (context, next) =>
 {
