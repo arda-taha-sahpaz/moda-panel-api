@@ -1,452 +1,491 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kreasyon Yönetimi | Anatolian Essence</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --ink: #251f1b;
+      --muted: #746a62;
+      --paper: #fffdf9;
+      --canvas: #f4eee7;
+      --line: #e6d9cd;
+      --sand: #c9aa8f;
+      --sand-dark: #9f795b;
+      --danger: #a83b3b;
+      --success: #26734a;
+      --shadow: 0 18px 48px rgba(48, 35, 25, .09);
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #111;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(211, 181, 155, .22), transparent 34rem),
+        var(--canvas);
+      font-family: Inter, Arial, sans-serif;
     }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
 
     .page {
-      max-width: 1200px;
+      width: min(1180px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 32px 20px 50px;
+      padding: 34px 0 64px;
     }
 
-    .topbar {
+    .topbar, .section-heading, .album-head {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 18px;
     }
 
-    .title-wrap h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--sand-dark);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
     }
 
-    .title-wrap p {
-      margin: 0;
-      color: #666;
-      font-size: 15px;
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 7px; font-family: Georgia, serif; font-size: clamp(28px, 5vw, 42px); }
+    h2 { margin-bottom: 0; font-family: Georgia, serif; }
+    .subtitle, .album-meta { color: var(--muted); }
+    .subtitle { margin-bottom: 0; }
+
+    .top-actions { display: flex; gap: 10px; }
+    .btn {
+      min-height: 43px;
+      padding: 11px 17px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      font-weight: 750;
+      transition: transform .15s ease, opacity .15s ease, background .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { cursor: wait; opacity: .6; transform: none; }
+    .btn-primary { color: white; background: var(--ink); }
+    .btn-soft { color: var(--ink); background: var(--paper); border-color: var(--line); text-decoration: none; }
+    .btn-danger { color: var(--danger); background: #fff6f4; border-color: #ecd0cb; }
+    .btn-small { min-height: 37px; padding: 8px 12px; font-size: 13px; }
+
+    .card {
+      margin-top: 28px;
+      padding: 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
     }
 
-    .site-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      background: #111;
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .topbar-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .site-link,
-    .logout-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      background: #111;
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .logout-btn {
-      border: none;
-    }
-
-    .upload-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 28px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    }
-
-    .upload-card h2 {
-      margin: 0 0 16px;
-      font-size: 22px;
-    }
-
-    .upload-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-
-    input[type="file"] {
-      max-width: 100%;
-    }
-
-    button {
-      border: none;
-      cursor: pointer;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      opacity: 0.95;
-    }
-
-    .add-btn {
-      background: #111;
-      color: #fff;
-    }
-
-    .delete-btn {
-      width: 100%;
-      background: #c62828;
-      color: #fff;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .section-header h2 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .count-badge {
-      background: #111;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .gallery-grid {
+    .create-grid, .edit-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 16px;
     }
 
-    .gallery-card {
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 13px 14px;
+      color: var(--ink);
       background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid #d9ccc1;
+      border-radius: 12px;
+      outline: none;
+      resize: vertical;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--sand-dark);
+      box-shadow: 0 0 0 3px rgba(159, 121, 91, .12);
     }
 
-    .gallery-image {
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 16px;
+      padding: 14px;
+      background: #faf6f1;
+      border: 1px dashed #ccb7a5;
+      border-radius: 14px;
+    }
+    .file-row input { min-width: 0; flex: 1; }
+    .hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+
+    .status { min-height: 21px; margin: 12px 0 0; font-size: 14px; }
+    .status.success { color: var(--success); }
+    .status.error { color: var(--danger); }
+
+    .section-heading { margin: 38px 0 16px; }
+    .count {
+      padding: 7px 12px;
+      color: white;
+      background: var(--ink);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .album-list { display: grid; gap: 22px; }
+    .album { margin: 0; }
+    .album-head { align-items: flex-start; margin-bottom: 18px; }
+    .album-title { margin-bottom: 5px; font-size: 26px; }
+    .album-meta { margin-bottom: 0; font-size: 13px; }
+    .album-actions { display: flex; gap: 8px; }
+    .edit-grid { margin-bottom: 14px; }
+    .edit-controls { display: flex; justify-content: flex-end; gap: 9px; margin-bottom: 18px; }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .photo {
+      position: relative;
       aspect-ratio: 2 / 3;
       overflow: hidden;
-      background: #ececec;
+      background: #eee5dd;
+      border-radius: 14px;
+    }
+    .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      color: white;
+      background: rgba(29, 24, 21, .82);
+      border: 0;
+      border-radius: 50%;
+      font-size: 18px;
     }
 
-    .gallery-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .card-body {
-      padding: 14px;
-    }
-
-    .card-meta {
-      margin: 0 0 12px;
-      font-size: 13px;
-      color: #666;
-      word-break: break-word;
-    }
-
-    .empty-state {
-      background: #fff;
-      border: 1px dashed #ccc;
-      border-radius: 18px;
-      padding: 30px;
+    .empty {
+      padding: 30px 18px;
+      color: var(--muted);
       text-align: center;
-      color: #666;
-      font-size: 15px;
+      background: rgba(255,255,255,.55);
+      border: 1px dashed #cdbdad;
+      border-radius: 18px;
+    }
+    .empty-photo { grid-column: 1 / -1; padding: 22px; }
+    .loading { opacity: .75; }
+
+    @media (max-width: 820px) {
+      .photo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-    .status {
-      margin-top: 14px;
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    .status.success {
-      color: #1b7f3b;
-    }
-
-    .status.error {
-      color: #c62828;
-    }
-
-    @media (max-width: 900px) {
-      .gallery-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 600px) {
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .topbar-actions {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .gallery-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .upload-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .add-btn {
-        width: 100%;
-      }
-
-      .site-link {
-        width: 100%;
-      }
+    @media (max-width: 620px) {
+      .page { width: min(100% - 20px, 1180px); padding-top: 20px; }
+      .topbar, .album-head { flex-direction: column; align-items: stretch; }
+      .top-actions, .album-actions { display: grid; grid-template-columns: 1fr 1fr; }
+      .top-actions .btn, .album-actions .btn { text-align: center; }
+      .create-grid, .edit-grid { grid-template-columns: 1fr; }
+      .card { padding: 17px; border-radius: 17px; }
+      .file-row { flex-direction: column; align-items: stretch; }
+      .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .album-title { font-size: 22px; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="topbar">
-      <div class="title-wrap">
-        <h1>Admin Panel</h1>
-        <p>Design galerisindeki fotoğrafları buradan ekleyip silebilirsin.</p>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Anatolian Essence</p>
+        <h1>Kreasyon Yönetimi</h1>
+        <p class="subtitle">Albümler oluştur, açıklamalarını düzenle ve fotoğraflarını yönet.</p>
       </div>
-      <div class="topbar-actions">
-        <a class="site-link" href="https://anatolianessence.com" target="_blank">Siteyi Aç</a>
-        <button class="logout-btn" type="button" onclick="logout()">Çıkış Yap</button>
+      <div class="top-actions">
+        <a class="btn btn-soft" href="https://anatolianessence.com" target="_blank" rel="noopener">Siteyi Aç</a>
+        <button class="btn btn-primary" type="button" onclick="logout()">Çıkış Yap</button>
       </div>
-    </div>
-    <div class="upload-card">
-      <h2>Yeni Foto Ekle</h2>
+    </header>
 
-      <div class="upload-row">
-        <input type="file" id="file" accept="image/*" />
-        <button class="add-btn" type="button" onclick="upload()">Foto Ekle</button>
+    <section class="card">
+      <p class="eyebrow">Yeni içerik</p>
+      <h2>Yeni Albüm Oluştur</h2>
+      <div class="create-grid" style="margin-top:18px">
+        <div>
+          <label for="newTitle">Albüm başlığı</label>
+          <input id="newTitle" type="text" maxlength="120" placeholder="Örn. Echoes of Anatolia">
+        </div>
+        <div>
+          <label for="newDescription">Albüm açıklaması</label>
+          <textarea id="newDescription" rows="3" maxlength="2000" placeholder="Kreasyonun hikâyesini kısaca yaz..."></textarea>
+        </div>
       </div>
+      <div class="file-row">
+        <input id="newFiles" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple>
+        <button id="createButton" class="btn btn-primary" type="button" onclick="createAlbum()">Albümü Oluştur</button>
+      </div>
+      <p class="hint">İstersen fotoğrafları şimdi seçebilir, istersen albümü oluşturduktan sonra ekleyebilirsin. Tek dosya en fazla 15 MB.</p>
+      <p id="status" class="status" aria-live="polite"></p>
+    </section>
 
-      <div id="status" class="status"></div>
+    <div class="section-heading">
+      <h2>Mevcut Albümler</h2>
+      <span id="albumCount" class="count">0 albüm</span>
     </div>
-
-    <div class="section-header">
-      <h2>Mevcut Tasarımlar</h2>
-      <div class="count-badge" id="photoCount">0 foto</div>
-    </div>
-
-    <div id="list"></div>
-  </div>
+    <section id="albumList" class="album-list" aria-live="polite">
+      <div class="empty loading">Albümler yükleniyor...</div>
+    </section>
+  </main>
 
   <script>
-  const API_BASE = "https://moda-panel-api.onrender.com";
+    const API_ORIGIN = "https://moda-panel-api.onrender.com";
+    const USE_LOCAL_API = location.hostname === "moda-panel-api.onrender.com" ||
+      location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const apiUrl = (path) => `${USE_LOCAL_API ? "" : API_ORIGIN}${path}`;
+    const albumList = document.getElementById("albumList");
+    const statusBox = document.getElementById("status");
+    const albumCount = document.getElementById("albumCount");
+    let albums = [];
 
-  const list = document.getElementById("list");
-  const statusBox = document.getElementById("status");
-  const photoCount = document.getElementById("photoCount");
-
-  function setStatus(message, type = "") {
-    statusBox.textContent = message;
-    statusBox.className = "status" + (type ? ` ${type}` : "");
-  }
-
-  function updateCount(count) {
-    photoCount.textContent = `${count} foto`;
-  }
-
-  function getImageSrc(imageUrl) {
-    if (!imageUrl) return "";
-    if (imageUrl.startsWith("http")) return imageUrl;
-    return `${API_BASE}${imageUrl}`;
-  }
-
-  async function upload() {
-    const fileInput = document.getElementById("file");
-    const file = fileInput.files[0];
-
-    if (!file) {
-      setStatus("Önce bir foto seçmelisin.", "error");
-      return;
+    if (!USE_LOCAL_API) {
+      window.location.replace(`${API_ORIGIN}/admin/panel.html`);
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-    setStatus("Foto yükleniyor...");
+    function setStatus(message, type = "") {
+      statusBox.textContent = message;
+      statusBox.className = `status${type ? ` ${type}` : ""}`;
+    }
 
-    try {
-      const response = await fetch(`${API_BASE}/api/posts/upload`, {
-        method: "POST",
-        body: formData,
-        credentials: "include"
+    async function request(path, options = {}) {
+      const response = await fetch(apiUrl(path), {
+        credentials: "include",
+        ...options
       });
+
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Oturum sona erdi.");
+      }
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Upload error:", errorText);
-        setStatus("Foto yükleme başarısız oldu.", "error");
-        return;
+        let message = "İşlem tamamlanamadı.";
+        try {
+          const data = await response.json();
+          message = data.message || message;
+        } catch (_) {}
+        throw new Error(message);
       }
 
-      fileInput.value = "";
-      setStatus("Foto başarıyla eklendi.", "success");
-      await loadPosts();
-    } catch (err) {
-      console.error(err);
-      setStatus("Yükleme sırasında hata oluştu.", "error");
+      return response;
     }
-  }
 
-  async function deletePost(id) {
-    const confirmed = confirm("Bu fotoğrafı silmek istediğine emin misin?");
-    if (!confirmed) return;
+    async function createAlbum() {
+      const title = document.getElementById("newTitle").value.trim();
+      const description = document.getElementById("newDescription").value.trim();
+      const fileInput = document.getElementById("newFiles");
+      const button = document.getElementById("createButton");
 
-    setStatus("Foto siliniyor...");
-
-    try {
-      const response = await fetch(`${API_BASE}/api/posts/${id}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Delete error:", errorText);
-        setStatus("Foto silinemedi.", "error");
+      if (!title) {
+        setStatus("Albüm başlığını yazmalısın.", "error");
         return;
       }
 
-      setStatus("Foto silindi.", "success");
-      await loadPosts();
-    } catch (err) {
-      console.error(err);
-      setStatus("Silme sırasında hata oluştu.", "error");
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      [...fileInput.files].forEach(file => formData.append("files", file));
+
+      button.disabled = true;
+      setStatus("Albüm ve fotoğraflar kaydediliyor...");
+
+      try {
+        await request("/api/collections", { method: "POST", body: formData });
+        document.getElementById("newTitle").value = "";
+        document.getElementById("newDescription").value = "";
+        fileInput.value = "";
+        setStatus("Albüm başarıyla oluşturuldu.", "success");
+        await loadAlbums();
+      } catch (error) {
+        setStatus(error.message, "error");
+      } finally {
+        button.disabled = false;
+      }
     }
-  }
 
-  async function loadPosts() {
-    try {
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        credentials: "include"
-      });
+    async function saveAlbum(id) {
+      const title = document.getElementById(`title-${id}`).value.trim();
+      const description = document.getElementById(`description-${id}`).value.trim();
 
-      if (!res.ok) {
-        throw new Error("Fotoğraflar alınamadı.");
-      }
-
-      const data = await res.json();
-      updateCount(data.length);
-
-      if (!data.length) {
-        list.innerHTML = `
-          <div class="empty-state">
-            Henüz hiç foto eklenmemiş. Yukarıdan ilk fotoğrafı yükleyebilirsin.
-          </div>
-        `;
+      if (!title) {
+        setStatus("Albüm başlığı boş bırakılamaz.", "error");
         return;
       }
 
-      list.innerHTML = `<div class="gallery-grid"></div>`;
-      const grid = list.querySelector(".gallery-grid");
+      setStatus("Albüm bilgileri kaydediliyor...");
+      try {
+        await request(`/api/collections/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description })
+        });
+        setStatus("Albüm bilgileri güncellendi.", "success");
+        await loadAlbums();
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    }
 
-      data.forEach((post) => {
-        const imageSrc = getImageSrc(post.imageUrl);
+    async function addImages(id) {
+      const input = document.getElementById(`files-${id}`);
+      if (!input.files.length) {
+        setStatus("Önce en az bir fotoğraf seçmelisin.", "error");
+        return;
+      }
 
-        grid.innerHTML += `
-          <article class="gallery-card">
-            <div class="gallery-image">
-              <img src="${imageSrc}" alt="tasarım fotoğrafı">
+      const formData = new FormData();
+      [...input.files].forEach(file => formData.append("files", file));
+      setStatus("Fotoğraflar albüme ekleniyor...");
+
+      try {
+        await request(`/api/collections/${id}/images`, { method: "POST", body: formData });
+        input.value = "";
+        setStatus("Fotoğraflar albüme eklendi.", "success");
+        await loadAlbums();
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    }
+
+    async function deleteImage(albumId, imageId) {
+      if (!confirm("Bu fotoğrafı albümden silmek istediğine emin misin?")) return;
+      setStatus("Fotoğraf siliniyor...");
+
+      try {
+        await request(`/api/collections/${albumId}/images/${imageId}`, { method: "DELETE" });
+        setStatus("Fotoğraf silindi.", "success");
+        await loadAlbums();
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    }
+
+    async function deleteAlbum(id) {
+      if (!confirm("Bu albüm ve içindeki tüm fotoğraflar silinecek. Emin misin?")) return;
+      setStatus("Albüm siliniyor...");
+
+      try {
+        await request(`/api/collections/${id}`, { method: "DELETE" });
+        setStatus("Albüm silindi.", "success");
+        await loadAlbums();
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    }
+
+    function renderAlbums() {
+      albumCount.textContent = `${albums.length} albüm`;
+
+      if (!albums.length) {
+        albumList.innerHTML = '<div class="empty">Henüz albüm oluşturulmamış. Yukarıdaki alandan ilk kreasyonu ekleyebilirsin.</div>';
+        return;
+      }
+
+      albumList.innerHTML = albums.map(album => {
+        const images = Array.isArray(album.images) ? album.images : [];
+        const photos = images.length
+          ? images.map(image => `
+              <div class="photo">
+                <img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(album.title)}" loading="lazy">
+                <button class="photo-delete" type="button" title="Fotoğrafı sil"
+                  onclick="deleteImage('${album.id}', '${image.id}')">×</button>
+              </div>`).join("")
+          : '<div class="empty empty-photo">Bu albümde henüz fotoğraf yok.</div>';
+
+        return `
+          <article class="card album">
+            <div class="album-head">
+              <div>
+                <p class="eyebrow">Kreasyon</p>
+                <h3 class="album-title">${escapeHtml(album.title)}</h3>
+                <p class="album-meta">${images.length} fotoğraf</p>
+              </div>
+              <div class="album-actions">
+                <button class="btn btn-soft btn-small" type="button" onclick="saveAlbum('${album.id}')">Değişiklikleri Kaydet</button>
+                <button class="btn btn-danger btn-small" type="button" onclick="deleteAlbum('${album.id}')">Albümü Sil</button>
+              </div>
             </div>
 
-            <div class="card-body">
-              <p class="card-meta">${post.imageUrl}</p>
-              <button class="delete-btn" type="button" onclick="deletePost('${post.id}')">
-                Sil
-              </button>
+            <div class="edit-grid">
+              <div>
+                <label for="title-${album.id}">Albüm başlığı</label>
+                <input id="title-${album.id}" type="text" maxlength="120" value="${escapeHtml(album.title)}">
+              </div>
+              <div>
+                <label for="description-${album.id}">Açıklama</label>
+                <textarea id="description-${album.id}" rows="3" maxlength="2000">${escapeHtml(album.description || "")}</textarea>
+              </div>
             </div>
-          </article>
-        `;
-      });
-    } catch (err) {
-      console.error(err);
-      list.innerHTML = `
-        <div class="empty-state">
-          Fotoğraflar yüklenirken hata oluştu.
-        </div>
-      `;
-      updateCount(0);
+
+            <div class="file-row">
+              <input id="files-${album.id}" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple>
+              <button class="btn btn-primary btn-small" type="button" onclick="addImages('${album.id}')">Fotoğraf Ekle</button>
+            </div>
+
+            <div class="photo-grid" style="margin-top:16px">${photos}</div>
+          </article>`;
+      }).join("");
     }
-  }
 
-  async function checkAuth() {
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/me`, {
-        credentials: "include"
-      });
-
-      if (!res.ok) {
-        window.location.href = "/admin/login.html";
+    async function loadAlbums() {
+      try {
+        const response = await request("/api/collections");
+        albums = await response.json();
+        renderAlbums();
+      } catch (error) {
+        albumList.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+        albumCount.textContent = "0 albüm";
       }
-    } catch (err) {
-      window.location.href = "/admin/login.html";
     }
-  }
 
-  async function logout() {
-    await fetch(`${API_BASE}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include"
-    });
+    async function checkAuth() {
+      await request("/api/auth/me");
+    }
 
-    window.location.href = "/admin/login.html";
-  }
+    async function logout() {
+      try {
+        await fetch(apiUrl("/api/auth/logout"), { method: "POST", credentials: "include" });
+      } finally {
+        window.location.href = "login.html";
+      }
+    }
 
-  (async function initPanel() {
-    await checkAuth();
-    await loadPosts();
-  })();
-</script>
+    (async function init() {
+      if (!USE_LOCAL_API) return;
+      try {
+        await checkAuth();
+        await loadAlbums();
+      } catch (_) {}
+    })();
+  </script>
 </body>
 </html>

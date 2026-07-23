@@ -101,13 +101,13 @@
       <div class="container">
         <div class="section-title reveal">
           <span>Design</span>
-          <h2>A few selected fashion sketches</h2>
+          <h2>Selected Collections</h2>
           <p>
-            A curated collection of fashion sketches blending creativity, detail, and visual storytelling.
+            Explore each collection and the story behind its designs.
           </p>
         </div>
 
-        <div class="gallery-grid" id="design-list"></div>
+        <div class="collections-list" id="design-list"></div>
       </div>
     </section>
 
@@ -205,6 +205,15 @@ function getImageUrl(path) {
   return `${API_BASE}${path}`;
 }
 
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 /* BUTTON */
 function setupInspectButtons() {
   document.querySelectorAll(".inspect-btn").forEach((btn) => {
@@ -219,30 +228,41 @@ function setupInspectButtons() {
 /* LOAD DATA */
 async function loadDesignPosts() {
   try {
-    const res = await fetch(`${API_BASE}/api/posts`);
+    const res = await fetch(`${API_BASE}/api/collections`);
+    if (!res.ok) throw new Error("Collections could not be loaded.");
     const data = await res.json();
 
     const list = document.getElementById("design-list");
     list.innerHTML = "";
 
     if (!data.length) {
-      list.innerHTML = `<p style="text-align:center;">Henüz foto yok</p>`;
+      list.innerHTML = `<p class="gallery-empty">No collection has been added yet.</p>`;
       return;
     }
 
-    data.forEach((post) => {
-      const imageUrl = getImageUrl(post.imageUrl);
+    data.forEach((collection) => {
+      const images = Array.isArray(collection.images) ? collection.images : [];
+      const cards = images.map((image) => {
+        const imageUrl = getImageUrl(image.imageUrl);
+        return `
+          <article class="gallery-card reveal">
+            <div class="gallery-image">
+              <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(collection.title)}" loading="lazy">
+              <button class="inspect-btn" type="button" data-image="${escapeHtml(imageUrl)}" aria-label="View image">
+                🔍
+              </button>
+            </div>
+          </article>`;
+      }).join("");
 
       list.innerHTML += `
-        <article class="gallery-card reveal">
-          <div class="gallery-image">
-            <img src="${imageUrl}" alt="foto" loading="lazy">
-            <button class="inspect-btn" data-image="${imageUrl}">
-              🔍
-            </button>
+        <section class="collection-block reveal">
+          <div class="collection-heading">
+            <h3>${escapeHtml(collection.title)}</h3>
+            ${collection.description ? `<p>${escapeHtml(collection.description)}</p>` : ""}
           </div>
-        </article>
-      `;
+          ${cards ? `<div class="gallery-grid">${cards}</div>` : `<p class="gallery-empty">Photos will be added soon.</p>`}
+        </section>`;
     });
 
     observeRevealItems();

@@ -45,6 +45,13 @@ builder.Services.AddSingleton(sp =>
     return database.GetCollection<Post>("posts");
 });
 
+builder.Services.AddSingleton(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var database = client.GetDatabase("modapanel");
+    return database.GetCollection<DesignCollection>("collections");
+});
+
 
 // ================== AUTH ==================
 builder.Services
@@ -134,5 +141,32 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
+
+// Existing single-photo posts are kept and moved into one editable album
+// the first time the album-enabled version starts.
+var collections = app.Services.GetRequiredService<IMongoCollection<DesignCollection>>();
+var legacyPosts = app.Services.GetRequiredService<IMongoCollection<Post>>();
+
+if (await collections.CountDocumentsAsync(_ => true) == 0)
+{
+    var oldPosts = await legacyPosts.Find(_ => true).ToListAsync();
+
+    if (oldPosts.Count > 0)
+    {
+        await collections.InsertOneAsync(new DesignCollection
+        {
+            Title = "Previous Designs",
+            Description = "",
+            Images = oldPosts
+                .Where(x => !string.IsNullOrWhiteSpace(x.ImageUrl))
+                .Select(x => new DesignImage
+                {
+                    ImageUrl = x.ImageUrl,
+                    PublicId = ""
+                })
+                .ToList()
+        });
+    }
+}
 
 app.Run();

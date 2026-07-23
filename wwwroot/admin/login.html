@@ -97,6 +97,15 @@
   </div>
 
   <script>
+    const API_ORIGIN = "https://moda-panel-api.onrender.com";
+    const USE_LOCAL_API = location.hostname === "moda-panel-api.onrender.com" ||
+      location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const apiUrl = (path) => `${USE_LOCAL_API ? "" : API_ORIGIN}${path}`;
+
+    if (!USE_LOCAL_API) {
+      window.location.replace(`${API_ORIGIN}/admin/login.html`);
+    }
+
     async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
@@ -106,8 +115,9 @@
       status.className = "status";
 
       try {
-        const res = await fetch("https://moda-panel-api.onrender.com/api/auth/login", {
+        const res = await fetch(apiUrl("/api/auth/login"), {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json"
           },
@@ -123,7 +133,7 @@
         status.textContent = "Giriş başarılı, yönlendiriliyorsun...";
         status.className = "status success";
 
-        window.location.href = "/admin/panel.html";
+        window.location.href = "panel.html";
       } catch (err) {
         console.error(err);
         status.textContent = "Giriş sırasında hata oluştu.";
